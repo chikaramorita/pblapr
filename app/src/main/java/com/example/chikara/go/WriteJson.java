@@ -41,10 +41,7 @@ public class WriteJson{
         String POST_URL="http://edu3.te.kumamoto-nct.ac.jp:8088/~te14morita/pbl/connection_write.php";
 
         //queue
-        RequestQueue getQueue= Volley.newRequestQueue(go.getAppContext());
-
-
-
+       RequestQueue getQueue= Volley.newRequestQueue(go.getAppContext());
         //Volleyによる通信開始　（GETかPOST、サーバーのURL、受信メゾット、エラーメゾット）
         StringRequest mRequest = new StringRequest(Request.Method.POST,POST_URL,
 
