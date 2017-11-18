@@ -23,14 +23,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 
 
 public class MainActivity extends AppCompatActivity implements LocationListener{
 String key=" ";
     int x=8;
+    int my_num;
     double  lat;
     double  lon;
     long logseconds;
+
+    StartJson ss= new StartJson("");
+
     String pagedate[]= {"https://www.jrkyushu-timetable.jp/cgi-bin/jr-k_time/tt_dep.cgi?c=28602",
             "http://www.kumamoto-nct.ac.jp/"
 
@@ -49,6 +54,48 @@ String key=" ";
         setContentView(R.layout.activity_main);
 
         SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
+        my_num = preferences.getInt("mynum",0);
+       if(my_num==0){
+           if ( Util.netWorkCheck(this.getApplicationContext() )){
+               WriteJson starts = new WriteJson("新規登録をしました");
+
+
+               ss.setOnCallBack(new StartJson.CallBackTask() {
+                   @Override
+                   public void CallBack(String response) {
+                       my_num = ss.my_num;
+
+                       new AlertDialog.Builder(MainActivity.this)
+                               .setIcon(android.R.drawable.ic_dialog_info)
+                               .setTitle("新規登録しました")
+                               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                   public void onClick(DialogInterface dialog, int whichButton) {
+                                   }
+                               }).show();
+
+                       TextView textx = (TextView) findViewById(R.id.textx);
+                       textx.setText("会員番号" + my_num);
+                       SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
+                       SharedPreferences.Editor editor2 = preferences.edit();
+
+                       editor2.putInt("mynum", my_num);
+                       editor2.commit();
+
+                   }
+               });
+               ss.rereadVolley();
+           }
+
+
+
+
+       }else {
+
+
+           TextView textx = (TextView) findViewById(R.id.textx);
+           textx.setText("会員番号" + my_num);
+       }
+        preferences = getSharedPreferences("settings", MODE_PRIVATE);
         points = preferences.getInt("point", 0);
         String str =Integer.toString(points);
         TextView text = (TextView)findViewById(R.id.textView);
@@ -57,39 +104,40 @@ String key=" ";
         SharedPreferences preferences2 = getSharedPreferences("settings", MODE_PRIVATE);
         logseconds= preferences.getLong("minu", 0);
 
+        if ( Util.netWorkCheck(this.getApplicationContext() )) {
+            // 非同期通信などの処理をかく
 
 
-        LocationManager mLocationManager =
-                (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            LocationManager mLocationManager =
+                    (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        // Criteriaオブジェクトを生成
-        Criteria criteria = new Criteria();
+            // Criteriaオブジェクトを生成
+            Criteria criteria = new Criteria();
 
-        // Accuracyを指定(低精度)
-        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+            // Accuracyを指定(低精度)
+            criteria.setAccuracy(Criteria.ACCURACY_COARSE);
 
-        // PowerRequirementを指定(低消費電力)
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
+            // PowerRequirementを指定(低消費電力)
+            criteria.setPowerRequirement(Criteria.POWER_LOW);
 
-        // ロケーションプロバイダの取得
-        String provider = mLocationManager.getBestProvider(criteria, true);
+            // ロケーションプロバイダの取得
+            String provider = mLocationManager.getBestProvider(criteria, true);
 
-        // 取得したロケーションプロバイダを表示
-       // TextView tv_provider = (TextView) findViewById(R.id.Provider);
-       // tv_provider.setText("Provider: " + provider);
+            // 取得したロケーションプロバイダを表示
+            // TextView tv_provider = (TextView) findViewById(R.id.Provider);
+            // tv_provider.setText("Provider: " + provider);
 
-        // LocationListenerを登録
-        if(provider!=null) {
-            mLocationManager.requestLocationUpdates(provider, 0, 0, this);
-            ProgressBar ntext = (ProgressBar) findViewById(R.id.nons);
-            ntext.setVisibility(View.INVISIBLE);
+            // LocationListenerを登録
+            if (provider != null) {
+                mLocationManager.requestLocationUpdates(provider, 0, 0, this);
+                ProgressBar ntext = (ProgressBar) findViewById(R.id.nons);
+                ntext.setVisibility(View.INVISIBLE);
+            } else {
+                ProgressBar ntext = (ProgressBar) findViewById(R.id.nons);
+                ntext.setVisibility(View.VISIBLE);
+            }
+
         }
-        else{
-            ProgressBar ntext = (ProgressBar) findViewById(R.id.nons);
-            ntext.setVisibility(View.VISIBLE);
-        }
-
-
 
        Button button = (Button) findViewById(R.id.button1);
         button.setOnClickListener(new View.OnClickListener() {
@@ -130,16 +178,6 @@ String key=" ";
 
             }
         });
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -190,6 +228,8 @@ String key=" ";
                                                                                      SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
 
                                                                                      points = preferences.getInt("point", 0) + point;
+                                                                                     WriteJson writer = new WriteJson(point+"ポイント追加しました");
+                                                                                             writer.rereadVolley();
                                                                                  }
 
 
@@ -327,11 +367,21 @@ String key=" ";
             public void onClick(View v) {
 
 
-                WriteJson writer = new WriteJson("morita", "testdayo", "113", "2929");
-                writer.rereadVolley();
+
                // Uri uri = Uri.parse("http://edu3.te.kumamoto-nct.ac.jp:8088/~te14morita/APIpra/map.html");
                 //Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 //startActivity(intent);
+            }});
+
+
+        Button button5= (Button) findViewById(R.id.button5);
+        button5.setOnClickListener(new View.OnClickListener()
+
+        {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SubActivity.class);
+                startActivity(intent);
             }});
 
 

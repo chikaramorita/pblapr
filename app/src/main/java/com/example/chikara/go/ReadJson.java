@@ -1,48 +1,49 @@
 package com.example.chikara.go;
 
+/**
+ * Created by ubuntu on 17/11/17.
+ */
+
+import android.app.Application;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by shigashan on 17/11/14.
- */
+public class ReadJson{
 
-public class WriteJson{
 
-    String logdata = "";
-    //String explanation = "";
-    JSONObject json_data = null;
-    //String latitude;
-    //String longitude;
-
-   // private CallBackTask callbacktask;
-
-    WriteJson(String log){//,String exp,String lat,String lng){
-        //this.name = n;
-        //this.explanation = exp;
-        //this.latitude = lat;
-        //this.longitude = lng;
-        this.logdata=log;
+    public ReadJson(int n){
+    my_num=n;
     }
+
+
+    JSONArray data;
+    private CallBackTask callbacktask;
+    public int my_num;
 
     public void rereadVolley() {
 
         //サーバーのアドレス任意
-        String POST_URL="http://edu3.te.kumamoto-nct.ac.jp:8088/~te14morita/pbl/connection_write.php";
+        String POST_URL="http://edu3.te.kumamoto-nct.ac.jp:8088/~te14morita/pbl/connection.php";
 
         //queue
-       RequestQueue getQueue= Volley.newRequestQueue(go.getAppContext());
+        RequestQueue getQueue= Volley.newRequestQueue(go.getAppContext());
+
+        //Volleyによる通信開始　（GETかPOST、サーバーのURL、受信メゾット、エラーメゾット）
         //Volleyによる通信開始　（GETかPOST、サーバーのURL、受信メゾット、エラーメゾット）
         StringRequest mRequest = new StringRequest(Request.Method.POST,POST_URL,
 
@@ -59,7 +60,7 @@ public class WriteJson{
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.i("error","ライトの通信に失敗しました。"+error);
+                        Log.i("erroooor","通信に失敗しました。"+error);
                     }
                 }
         ){
@@ -67,7 +68,7 @@ public class WriteJson{
             @Override
             protected Map<String,String> getParams(){
                 Map<String,String> params = new HashMap<String,String>();
-                params.put("log",logdata);
+                params.put("mynum","5");//Integer.toString(my_num));
                 return params;
             }
         };
@@ -76,14 +77,19 @@ public class WriteJson{
 
     }
 
-   /* public void setOnCallBack(CallBackTask _cbj) {
+    public void setOnCallBack(CallBackTask _cbj) {
         callbacktask = _cbj;
     }
 
+    public void setData(JSONArray res_data){
+        this.data = res_data;
+        callbacktask.CallBack(this.data);
+    }
+
     public static class CallBackTask {
-        public void CallBack(String response) {
+        public void CallBack(JSONArray result) {
         }
     }
-*/
+
 
 }
