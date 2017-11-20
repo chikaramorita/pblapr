@@ -1,29 +1,28 @@
 package com.example.chikara.go;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.json.JSONArray;
+import android.widget.VideoView;
 
 
 public class MainActivity extends AppCompatActivity implements LocationListener{
@@ -34,8 +33,13 @@ String key=" ";
     double  lon;
     long logseconds;
 
-    StartJson ss= new StartJson("");
+    boolean chnet;
+    String allliset="morita";
+    static final String BR = System.getProperty("line.separator");
 
+    StartJson ss= new StartJson("");
+    private ImageView image;
+    private VideoView videoView;
     String pagedate[]= {"https://www.jrkyushu-timetable.jp/cgi-bin/jr-k_time/tt_dep.cgi?c=28602",
             "http://www.kumamoto-nct.ac.jp/"
 
@@ -52,7 +56,22 @@ String key=" ";
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        videoView = (VideoView)findViewById(R.id.storage_video);
+        String uriPath = "android.resource://com.example.chikara.go/raw/myvideo";
+        Uri uri = Uri.parse(uriPath);
+        videoView.setVideoURI(uri);
+        //videoView.setVideoPath( myvideo.mp4);
+        videoView.start();
 
+        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                videoView.seekTo(0);
+                videoView.start();
+            }
+        });
+
+        chnet=Util.netWorkCheck(this.getApplicationContext());
         SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
         my_num = preferences.getInt("mynum",0);
        if(my_num==0){
@@ -85,7 +104,17 @@ String key=" ";
                });
                ss.rereadVolley();
            }
+        else{   new AlertDialog.Builder(MainActivity.this)
+                   .setIcon(android.R.drawable.ic_dialog_info)
+                   .setTitle("ネットワークエラーです"+BR+"接続をお確かめください")
+                   .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                       public void onClick(DialogInterface dialog, int whichButton) {
+                       }
+                   }).show();
 
+               TextView textx = (TextView) findViewById(R.id.textx);
+               textx.setText("会員番号" + my_num);
+           }
 
 
 
@@ -130,17 +159,14 @@ String key=" ";
             // LocationListenerを登録
             if (provider != null) {
                 mLocationManager.requestLocationUpdates(provider, 0, 0, this);
-                ProgressBar ntext = (ProgressBar) findViewById(R.id.nons);
-                ntext.setVisibility(View.INVISIBLE);
-            } else {
-                ProgressBar ntext = (ProgressBar) findViewById(R.id.nons);
-                ntext.setVisibility(View.VISIBLE);
+
             }
 
         }
 
        Button button = (Button) findViewById(R.id.button1);
         button.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View v) {
                 SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
@@ -148,8 +174,9 @@ String key=" ";
                 points = preferences.getInt("point", 0);
 
 
-
-                if (check() == true) {
+                chnet=Util.netWorkCheck(MainActivity.this.getApplicationContext());
+                if (true== true) {
+                    if(chnet==true){
                     points = points + 100;
                     SharedPreferences pref = getSharedPreferences("settings", MODE_PRIVATE);
 
@@ -160,8 +187,28 @@ String key=" ";
                     TextView text = (TextView)findViewById(R.id.textView);
                     text.setText(str);
                     Toast.makeText(MainActivity.this,
-                            "ポイント追加",
+                            "ポイント加算しました",
                             Toast.LENGTH_SHORT).show();
+                        //final  long time =System.currentTimeMillis();
+                        //SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss SSS");
+                        //String a=sdf.format(time);
+                        WriteJson writer = new WriteJson("100ポイント加算しました");
+                        writer.rereadVolley();
+
+
+
+                    }
+
+                    else {
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setIcon(android.R.drawable.ic_dialog_info)
+                                .setTitle("ネットワークエラーです"+BR+"接続をお確かめください")
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                    }
+                                }).show();
+                    }
+
 
                 } else {
                     //TextView pointv = (TextView) findViewById(point);
@@ -200,18 +247,45 @@ String key=" ";
                                                   .setView(editView)
                                                   .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                                       public void onClick(DialogInterface dialog, int whichButton) {
+                                                          if(allliset.equals(editView.getText().toString())){
+                                                              logseconds=0;
+                                                              points=0;
+                                                              my_num=0;
+                                                              SharedPreferences pref = getSharedPreferences("settings", MODE_PRIVATE);
+
+                                                              SharedPreferences.Editor editor = pref.edit();
+
+                                                              editor.putInt("point", points);
+                                                              editor.putInt("mynum", my_num);
+                                                              editor.putLong("minu", logseconds);
+                                                              editor.commit();
+                                                              TextView textx = (TextView) findViewById(R.id.textx);
+                                                              textx.setText("会員番号" + my_num);
+                                                              String str2 = Integer.toString(points);
+                                                              TextView text = (TextView) findViewById(R.id.textView);
+                                                              text.setText(str2);
+                                                              new AlertDialog.Builder(MainActivity.this)
+                                                                      .setIcon(android.R.drawable.ic_dialog_info)
+                                                                      .setTitle("管理者リセット完了")
+                                                                      .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                                          public void onClick(DialogInterface dialog, int whichButton) {
+                                                                          }
+                                                                      }).show();
 
 
-                                                          if(key.equals(editView.getText().toString())) {
+                                                          }
+                                                          chnet=Util.netWorkCheck(MainActivity.this.getApplicationContext());
+                                                        if(key.equals(editView.getText().toString())) {
                                                               final EditText editView2 = new EditText(MainActivity.this);
                                                               new AlertDialog.Builder(MainActivity.this)
                                                                       .setIcon(android.R.drawable.ic_dialog_info)
-                                                                      .setTitle("ポイント入力")
+                                                                      .setTitle("加算するポイント入力してください")
                                                                       .setView(editView2)
                                                                       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                                                           public void onClick(DialogInterface dialog, int whichButton) {
 
                                                                               String str = editView2.getText().toString();
+
                                                                              if(cheeek(str)==true) {
                                                                                  int point = Integer.parseInt(str);
                                                                                  if (point >= 100000000) {
@@ -223,12 +297,19 @@ String key=" ";
                                                                                              "マイナス値は入力できません",
                                                                                              Toast.LENGTH_SHORT).show();
 
-
+                                                                                 }else if( chnet!=true){
+                                                                                     new AlertDialog.Builder(MainActivity.this)
+                                                                                             .setIcon(android.R.drawable.ic_dialog_info)
+                                                                                             .setTitle("ネットワークエラーです"+BR+"接続をお確かめください")
+                                                                                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                                                                 public void onClick(DialogInterface dialog, int whichButton) {
+                                                                                                 }
+                                                                                             }).show();
                                                                                  } else {
                                                                                      SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
 
                                                                                      points = preferences.getInt("point", 0) + point;
-                                                                                     WriteJson writer = new WriteJson(point+"ポイント追加しました");
+                                                                                     WriteJson writer = new WriteJson(point+"ポイント加算しました");
                                                                                              writer.rereadVolley();
                                                                                  }
 
@@ -293,14 +374,23 @@ String key=" ";
                                                                final EditText editView2 = new EditText(MainActivity.this);
                                                                new AlertDialog.Builder(MainActivity.this)
                                                                        .setIcon(android.R.drawable.ic_dialog_info)
-                                                                       .setTitle("いくら分使いますか？")
+                                                                       .setTitle("消費するポイント入力してください")
                                                                        .setView(editView2)
                                                                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                                                            public void onClick(DialogInterface dialog, int whichButton) {
                                                                                SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
                                                                                points = preferences.getInt("point", 0);
                                                                                String str = editView2.getText().toString();
-                                                                               if(cheeek(str)==true) {
+                                                                               chnet=Util.netWorkCheck(MainActivity.this.getApplicationContext());
+                                                                               if(chnet!=true) {
+                                                                                   new AlertDialog.Builder(MainActivity.this)
+                                                                                           .setIcon(android.R.drawable.ic_dialog_info)
+                                                                                           .setTitle("ネットワークエラーです"+BR+"接続をお確かめください")
+                                                                                           .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                                                               public void onClick(DialogInterface dialog, int whichButton) {
+                                                                                               }
+                                                                                           }).show();
+                                                                               }else if(cheeek(str)==true) {
                                                                                    int point = Integer.parseInt(str);
                                                                                    if (point < 0) {
                                                                                        Toast.makeText(MainActivity.this,
@@ -312,6 +402,9 @@ String key=" ";
                                                                                                Toast.LENGTH_SHORT).show();
                                                                                    } else {
                                                                                        points = points - point;
+                                                                                       WriteJson writer = new WriteJson(point+"ポイント消費しました");
+                                                                                       writer.rereadVolley();
+
                                                                                    }
 
 
@@ -368,9 +461,9 @@ String key=" ";
 
 
 
-               // Uri uri = Uri.parse("http://edu3.te.kumamoto-nct.ac.jp:8088/~te14morita/APIpra/map.html");
-                //Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                //startActivity(intent);
+               Uri uri = Uri.parse("http://www.kumamoto-nct.ac.jp/wp/wp-content/uploads/2017/08/KNCT_GAIYO2017.pdf");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
             }});
 
 
@@ -380,8 +473,18 @@ String key=" ";
         {
             @Override
             public void onClick(View v) {
+                if(Util.netWorkCheck(MainActivity.this.getApplicationContext())==true){
                 Intent intent = new Intent(MainActivity.this, SubActivity.class);
-                startActivity(intent);
+                startActivity(intent);}
+                else{
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setIcon(android.R.drawable.ic_dialog_info)
+                            .setTitle("ネットワークエラーです"+BR+"接続をお確かめください")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                }
+                            }).show();
+                }
             }});
 
 
@@ -400,6 +503,12 @@ String key=" ";
 
 
     }
+   /* public void RotateY (View view){
+        image = (ImageView) findViewById(R.id.imageView);
+        Animator animator = AnimatorInflater.loadAnimator(this, R.anim.rotation_y);
+        animator.setTarget(image);
+        animator.start();
+    }*/
     public String errch (SharedPreferences preferences) {
         try {
             String user = preferences.getString("point", "");
