@@ -23,35 +23,11 @@
                     tools:context=".MainActivity">
 
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="20dp"
-                            android:text="新規登録しました"
-                            android:textSize="30sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="20dp"
-                            android:text="100ポイント追加しました!"
-                            android:textSize="30sp" />
-
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="20dp"
-                            android:text="50ポイント消費しました"
-                            android:textSize="30sp" />
-
-                        <Button
-                            android:id="@+id/return_button"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="20dp"
-                            android:text="メインメニューに戻る"
-                            android:textSize="20sp" />
+                      <TextView
+                          android:id="@+id/textView"
+                          android:layout_width="match_parent"
+                          android:layout_height="match_parent"
+                          />
 
                 </LinearLayout>
         </ScrollView>

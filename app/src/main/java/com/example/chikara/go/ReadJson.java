@@ -24,6 +24,8 @@ public class ReadJson{
     public ReadJson(int n){
     my_num=n;
     }
+    String obdata;
+    static final String BR = System.getProperty("line.separator");
 
 
     JSONArray data;
@@ -46,7 +48,8 @@ public class ReadJson{
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        //今回は処理なし
+                        obdata=Cutter(response);
+
                         Log.i("success","通信成功！返答:"+response);
                     }
                 },
@@ -76,14 +79,19 @@ public class ReadJson{
         callbacktask = _cbj;
     }
 
-    public void setData(JSONArray res_data){
-        this.data = res_data;
-        callbacktask.CallBack(this.data);
-    }
 
     public static class CallBackTask {
-        public void CallBack(JSONArray result) {
+        public void CallBack(String responce) {
         }
+    }
+    public String Cutter(String ob){
+        String w = null;
+        String [] x = ob.split(",",0);
+        for(int i=0;i<x.length;i++){
+            w=w+x[i]+BR;
+        }
+
+        return w;
     }
 
 
