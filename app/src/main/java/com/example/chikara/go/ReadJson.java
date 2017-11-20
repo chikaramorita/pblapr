@@ -66,7 +66,7 @@ public class ReadJson{
             @Override
             protected Map<String,String> getParams(){
                 Map<String,String> params = new HashMap<String,String>();
-                params.put("mynum","5");//Integer.toString(my_num));
+                params.put("mynum",Integer.toString(my_num));
                 return params;
             }
         };
