@@ -68,7 +68,7 @@ public class ReadJson{
             @Override
             protected Map<String,String> getParams(){
                 Map<String,String> params = new HashMap<String,String>();
-                params.put("mynum","5");//Integer.toString(my_num));
+                params.put("mynum","1");//Integer.toString(my_num));
                 return params;
             }
         };
@@ -76,7 +76,13 @@ public class ReadJson{
         getQueue.add(mRequest);
 
     }
-
+public String cutter (String responce){
+    String[] x=responce.split(",",0);
+    String momo="null";
+    for(int i=0;i<x.length;i++){
+        momo=x[i]+BR;
+    }
+}
     public void setOnCallBack(CallBackTask _cbj) {
         callbacktask = _cbj;
     }

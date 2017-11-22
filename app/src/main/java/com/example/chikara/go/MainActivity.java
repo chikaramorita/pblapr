@@ -34,7 +34,7 @@ String key=" ";
     double  lon;
     long logseconds;
 
-    StartJson ss= new StartJson("");
+   // StartJson ss= new StartJson("");
 
     String pagedate[]= {"https://www.jrkyushu-timetable.jp/cgi-bin/jr-k_time/tt_dep.cgi?c=28602",
             "http://www.kumamoto-nct.ac.jp/"
@@ -57,13 +57,14 @@ String key=" ";
         my_num = preferences.getInt("mynum",0);
        if(my_num==0){
            if ( Util.netWorkCheck(this.getApplicationContext() )){
-               WriteJson starts = new WriteJson("新規登録をしました");
+               final StartJson starts = new StartJson("新規登録をしました");
 
+               starts.rereadVolley();
 
-               ss.setOnCallBack(new StartJson.CallBackTask() {
+               starts.setOnCallBack(new StartJson.CallBackTask() {
                    @Override
                    public void CallBack(String response) {
-                       my_num = ss.my_num;
+                       my_num = starts.my_num;
 
                        new AlertDialog.Builder(MainActivity.this)
                                .setIcon(android.R.drawable.ic_dialog_info)
@@ -83,7 +84,7 @@ String key=" ";
 
                    }
                });
-               ss.rereadVolley();
+
            }
 
 
